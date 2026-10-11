@@ -117,6 +117,17 @@ class SyncState extends ChangeNotifier {
     }
   }
 
+  /// Pull side: pick up reports marked resolved on the server. Skipped
+  /// when offline and never throws.
+  Future<void> pullReportStatuses(String ownerId) async {
+    if (!isOnline) return;
+    try {
+      await _syncService.pullReportStatuses(ownerId);
+    } catch (e) {
+      debugPrint('SyncState: report status pull failed: $e');
+    }
+  }
+
   @override
   void dispose() {
     _sub?.cancel();

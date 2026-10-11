@@ -1,24 +1,28 @@
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' show FirebaseFirestore, Settings;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'firebase_options.dart';
+import 'core/constants.dart';
 import 'core/theme.dart';
+import 'firebase_options.dart';
+import 'presentation/screens/auth/sign_in_screen.dart';
+import 'presentation/screens/collector/collector_home_screen.dart';
+import 'presentation/screens/household/household_shell.dart';
 import 'presentation/state/auth_state.dart';
 import 'presentation/state/bag_state.dart';
+import 'presentation/state/report_state.dart';
 import 'presentation/state/sync_state.dart';
-import 'core/constants.dart';
-import 'presentation/screens/auth/sign_in_screen.dart';
-import 'presentation/screens/dashboard/dashboard_screen.dart';
-import 'presentation/screens/collector/collector_home_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart' show FirebaseFirestore, Settings;
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   // Firestore's built-in offline cache is switched OFF on purpose. The
   // app's offline behaviour is the SQLite + outbox design; leaving the
   // SDK's cache on would let it quietly do the job instead.
   FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: false);
+
   runApp(const CleanCycleApp());
 }
 
@@ -31,6 +35,7 @@ class CleanCycleApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthState()),
         ChangeNotifierProvider(create: (_) => BagState()),
+        ChangeNotifierProvider(create: (_) => ReportState()),
         ChangeNotifierProvider(create: (_) => SyncState()),
       ],
       child: MaterialApp(
@@ -44,8 +49,8 @@ class CleanCycleApp extends StatelessWidget {
 }
 
 /// Watches auth status and shows the right top-level screen. This is the
-/// ONLY place that branches on AuthStatus — individual screens never need
-/// to check it themselves.
+/// ONLY place that branches on AuthStatus and role; individual screens
+/// never re-check who they are showing to.
 class _RootRouter extends StatelessWidget {
   const _RootRouter();
 
@@ -72,13 +77,9 @@ class _RootRouter extends StatelessWidget {
       case AuthStatus.signedOut:
         return const SignInScreen();
       case AuthStatus.signedIn:
-        // Role decides the entire screen set from here — this is the
-        // ONLY place that branches on role, same principle as AuthStatus
-        // above. Individual screens never need to re-check who they're
-        // showing to.
         return auth.currentUser?.role == UserRole.collector
             ? const CollectorHomeScreen()
-            : const DashboardScreen();
+            : const HouseholdShell();
     }
   }
 }

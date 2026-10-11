@@ -2,7 +2,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 /// Single source of truth for the local schema. Every screen reads from
-/// these tables — never directly from Firestore. Firestore is a
+/// these tables, never directly from Firestore. Firestore is a
 /// replication target, reached only through the sync service.
 class AppDatabase {
   static final AppDatabase instance = AppDatabase._internal();
@@ -20,7 +20,7 @@ class AppDatabase {
     final path = join(await getDatabasesPath(), 'cleancycle.db');
     return openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE bags (
@@ -62,7 +62,8 @@ class AppDatabase {
             description TEXT,
             status TEXT NOT NULL,
             created_at TEXT NOT NULL,
-            synced INTEGER NOT NULL DEFAULT 0
+            synced INTEGER NOT NULL DEFAULT 0,
+            place_name TEXT
           )
         ''');
 
@@ -81,18 +82,22 @@ class AppDatabase {
         await db.execute('CREATE INDEX idx_custody_bag ON custody_events(bag_id)');
         await db.execute('CREATE INDEX idx_outbox_next ON outbox(next_attempt_at)');
       },
-      // v1 -> v2: cache for the reverse-geocoded place name. Existing
-      // rows keep their data; the new column starts NULL and fills in
-      // lazily the first time each event is displayed while online.
+      // v1 -> v2: place-name cache for custody events.
+      // v2 -> v3: place-name cache for waste reports.
+      // Existing rows keep their data; new columns start NULL and fill in
+      // lazily the first time each row is shown while online.
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
           await db.execute('ALTER TABLE custody_events ADD COLUMN place_name TEXT');
+        }
+        if (oldVersion < 3) {
+          await db.execute('ALTER TABLE waste_reports ADD COLUMN place_name TEXT');
         }
       },
     );
   }
 
-  /// Wipes and recreates the database — development only.
+  /// Wipes and recreates the database. Development only.
   Future<void> resetForDevelopment() async {
     final path = join(await getDatabasesPath(), 'cleancycle.db');
     await deleteDatabase(path);

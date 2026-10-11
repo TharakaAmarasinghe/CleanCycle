@@ -101,7 +101,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               MaterialPageRoute(builder: (_) => const SyncCentreScreen()),
             ),
           ),
-          IconButton(icon: const Icon(Icons.logout), onPressed: () => auth.signOut()),
+          // IconButton(icon: const Icon(Icons.logout), onPressed: () => auth.signOut()),
         ],
       ),
       body: Column(
