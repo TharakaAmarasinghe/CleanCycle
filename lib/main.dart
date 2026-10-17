@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart' show FirebaseFirestore, Se
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'core/constants.dart';
 import 'core/theme.dart';
 import 'firebase_options.dart';
@@ -13,6 +12,7 @@ import 'presentation/state/auth_state.dart';
 import 'presentation/state/bag_state.dart';
 import 'presentation/state/report_state.dart';
 import 'presentation/state/sync_state.dart';
+import 'presentation/state/collector_state.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +37,7 @@ class CleanCycleApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => BagState()),
         ChangeNotifierProvider(create: (_) => ReportState()),
         ChangeNotifierProvider(create: (_) => SyncState()),
+        ChangeNotifierProvider(create: (_) => CollectorState()),
       ],
       child: MaterialApp(
         title: 'CleanCycle',

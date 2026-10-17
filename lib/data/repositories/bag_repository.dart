@@ -142,4 +142,10 @@ class BagRepository {
     return result;
   }
 
+  /// A collector's own latest events, for the Collector home.
+  Future<List<CustodyEvent>> getRecentEventsByActor(String actorId, {int limit = 10}) =>
+      _custodyDao.getRecentByActor(actorId, limit: limit);
+
+  Future<({int collected, int delivered})> todayCounts(String actorId) =>
+      _custodyDao.countTodayByActor(actorId);
 }

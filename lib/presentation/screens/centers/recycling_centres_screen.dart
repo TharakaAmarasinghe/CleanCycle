@@ -81,31 +81,6 @@ class _RecyclingCentresScreenState extends State<RecyclingCentresScreen> {
     }
   }
 
-  Widget _infoNote() {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.medium),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.info_outline, size: 18, color: AppColors.textSecondary),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Text(
-              'Sample data for demonstration. A real deployment would load a verified '
-                  'directory. Distances are straight-line from your current location.',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _locationStatus() {
     if (_locating) {
       return Text('Finding your location…', style: Theme.of(context).textTheme.bodyMedium);
@@ -223,7 +198,6 @@ class _RecyclingCentresScreenState extends State<RecyclingCentresScreen> {
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
-          _infoNote(),
           const SizedBox(height: AppSpacing.md),
           _locationStatus(),
           const SizedBox(height: AppSpacing.sm),

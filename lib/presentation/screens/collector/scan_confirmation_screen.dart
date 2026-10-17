@@ -9,6 +9,7 @@ import '../../../domain/services/location_service.dart';
 import '../../state/auth_state.dart';
 import '../../state/sync_state.dart';
 import 'custody_result_screen.dart';
+import '../../state/collector_state.dart';
 
 /// A custody event is NEVER created silently. Scanning only brings the
 /// collector here; nothing is recorded until they press one of the two
@@ -42,6 +43,7 @@ class _ScanConfirmationScreenState extends State<ScanConfirmationScreen> {
   Future<void> _confirm(CustodyEventType type) async {
     final auth = context.read<AuthState>();
     final sync = context.read<SyncState>();
+    final collector = context.read<CollectorState>();
     final actorId = auth.currentUser!.id;
     setState(() => _saving = true);
 
@@ -57,7 +59,7 @@ class _ScanConfirmationScreenState extends State<ScanConfirmationScreen> {
       longitude: loc?.longitude,
       accuracyMeters: loc?.accuracyMeters,
     );
-
+    await collector.refresh(actorId);
     sync.triggerSync();
     if (!mounted) return;
     Navigator.push(
